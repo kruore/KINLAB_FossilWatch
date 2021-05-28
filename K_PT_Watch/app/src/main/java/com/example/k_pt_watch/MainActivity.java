@@ -1,151 +1,149 @@
 package com.example.k_pt_watch;
 
-
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.wearable.activity.WearableActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
-import java.io.IOException;
-import java.util.Locale;
-import java.util.List;
+public class MainActivity extends WearableActivity implements SensorEventListener {
 
-public class MainActivity extends WearableActivity {
+    private TextView HeartBeat;
+    private TextView HeartBeatMax;
+    private TextView HeartBeatMin;
+    private int maxValue=0;
+    private int minValue=0;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
+    //Used to track which screen we are on. It should be possible to use view id or something better.
+    //TODO: Improve this see comment above.
+    enum ScreenState {heartbeat,exit}
 
-    //GPS 트래커
-    private GpsTracker gpsTracker;
+    private ScreenState currentState=ScreenState.heartbeat;
 
-
-    private Button m_GPSConnect;
-    private TextView m_GPSDataX;
-    private TextView m_GPSDataY;
-    private TextView m_walkData;
-    private TextView m_GPSConnectChecker;
-    private TextView mTextView6;
-
-    private static final int PERMISSION_REQUEST_READ_BODY_SENSORS = 1;
-    private static final int REQUEST_PHONE_PERMISSION = 1;
-    private static int REQUEST_ACCESS_FINE_LOCATION = 1000;
-    public static final String EXTRA_PROMPT_PERMISSION_FROM_PHONE = "com.example.android.wearable.runtimepermissions.extra.PROMPT_PERMISSION_FROM_PHONE";
-
-
+    public void onExitYes(View view)
+    {
+        finishAndRemoveTask();
+    }
+    public void onExitNo(View view)
+    {
+        currentState=ScreenState.heartbeat;
+        setContentView(R.layout.activity_main);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+        HeartBeat = findViewById(R.id.heartbeat);
+        HeartBeatMax = findViewById(R.id.heartbeatmax);
+        HeartBeatMin = findViewById(R.id.heartbeatmin);
+        HeartBeat.setText("RESTART APP");
+        HeartBeatMax.setVisibility(View.INVISIBLE);
+        HeartBeatMin.setVisibility(View.INVISIBLE);
+        permissionRequest();
 
+        readSensor();
 
-
-        m_GPSDataX = (TextView) findViewById(R.id.textView);
-        m_GPSConnect = (Button) findViewById(R.id.Button01);
-        View.OnClickListener Listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requestPermission();
-                gpsTracker = new GpsTracker(MainActivity.this);
-
-                double latitude = gpsTracker.getLatitude();
-                double longitude = gpsTracker.getLongitude();
-
-                String address = getCurrentAddress(latitude, longitude);
-                m_GPSDataX.setText(address);
-            }
-        };
-        m_GPSConnect.setOnClickListener(Listener);
-
+        // Enables Always-on
         setAmbientEnabled();
-
-
-
     }
-    public String getCurrentAddress( double latitude, double longitude) {
-
-        //지오코더... GPS를 주소로 변환
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-
-        List<Address> addresses;
-
-        try {
-
-            addresses = geocoder.getFromLocation(
-                    latitude,
-                    longitude,
-                    7);
-        } catch (IOException ioException) {
-            //네트워크 문제
-            Toast.makeText(this, "지오코더 서비스 사용불가", Toast.LENGTH_LONG).show();
-            return "지오코더 서비스 사용불가";
-        } catch (IllegalArgumentException illegalArgumentException) {
-            Toast.makeText(this, "잘못된 GPS 좌표", Toast.LENGTH_LONG).show();
-            return "잘못된 GPS 좌표";
-
+    private void readSensor() {
+        SensorManager mSensorManager = ((SensorManager)getSystemService(SENSOR_SERVICE));
+        Sensor mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+        mSensorManager.registerListener( this, mHeartRateSensor, SensorManager.SENSOR_DELAY_UI);
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
+            if((int)event.values[0]==0) {
+                //Heartrate is 0. This means sensor is available but reading cannot be made.
+                //Caused either sensor starting up or watch has been removed from writs.
+                //Do not log minimum value and display text "NO PULSE"
+                HeartBeat.setText("NO PULSE");
+                return;
+            }
+            String msg = "" + (int)event.values[0];
+            if(HeartBeatMax.getVisibility()==View.INVISIBLE && (int)event.values[0]!=0){
+                HeartBeatMax.setVisibility(View.VISIBLE);
+                HeartBeatMin.setVisibility(View.VISIBLE);
+                maxValue=(int)event.values[0];
+                minValue=(int)event.values[0];
+            }
+            if((int)event.values[0]>maxValue)maxValue=(int)event.values[0];
+            if((int)event.values[0]<minValue)minValue=(int)event.values[0];
+            HeartBeat.setText(msg + " bpm");
+            HeartBeatMax.setText("MAX: " + maxValue + " bpm");
+            HeartBeatMin.setText("MIN: " + minValue + " bpm");
+            //Log.d(TAG, msg);
         }
-
-        if (addresses == null || addresses.size() == 0) {
-            Toast.makeText(this, "주소 미발견", Toast.LENGTH_LONG).show();
-            return "주소 미발견";
-
-        }
-
-        Address address = addresses.get(0);
-        return address.getAddressLine(0).toString()+"\n";
 
     }
 
-
-
-
-    public void DbgToast(String message) {
-        Toast toast = null;
-        toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        toast.show();
+    //Handle button presses
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event){
+        if (event.getRepeatCount() == 0) {
+            if (keyCode == KeyEvent.KEYCODE_STEM_1) {
+                event.startTracking();
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
+                event.startTracking();
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_STEM_3) {
+                event.startTracking();
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
-    public void requestPermission()
-    {
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if(permissionCheck == PackageManager.PERMISSION_DENIED){ //포그라운드 위치 권한 확인
-
-            //위치 권한 요청
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
-            DbgToast("Done");
+    //Key를 오래 누를 경우에 동작하는 기능
+    @Override
+    public boolean onKeyLongPress(int keyCode, KeyEvent event){
+        Log.d(TAG, String.valueOf(keyCode));
+        if (keyCode == KeyEvent.KEYCODE_STEM_1) {
+            if(currentState==ScreenState.heartbeat){
+                currentState=ScreenState.exit;
+             //   setContentView(R.layout.exit_layout);
+            }
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_STEM_3) {
+            //Button 3 is held. Exiting!
+            //finishAndRemoveTask();
+            return true;
         }
-        else
-        {
-            DbgToast("Permission");
-        }
 
-        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-
-
-        if(permissionCheck == PackageManager.PERMISSION_DENIED){ //백그라운드 위치 권한 확인
-
-            //위치 권한 요청
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, 0);
-            DbgToast("Done");
-        }
-        else
-        {
-            DbgToast("Permission");
-        }
+        return super.onKeyDown(keyCode, event);
     }
 
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    public void permissionRequest(){
+        //TODO: Negative answer not handled. Positive answer requires restart.
+        if (checkSelfPermission(Manifest.permission.BODY_SENSORS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(
+                    new String[]{Manifest.permission.BODY_SENSORS}, 1);
+        }
+        else{
+            //Log.d(TAG,"ALREADY GRANTED");
+        }
+    }
 
 }
-
-//
-//    private boolean hasGps() {
-//        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
-//    }
-

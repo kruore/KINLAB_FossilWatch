@@ -1,39 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="15dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context=".MainActivity"
+    tools:deviceIds="wear">
 
-    <FrameLayout
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/inner_frame_layout_padding"
-        app:boxedEdges="all"
-        tools:ignore="MissingPrefix">
-
-        <Button
-            android:id="@+id/Button01"
-            android:layout_width="65dp"
-            android:layout_height="73dp"
-            android:layout_gravity="bottom|right"
-            android:text="bj" />
+        android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="70dp"
+            android:id="@+id/heartbeat"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView" />
+            android:layout_marginTop="50dp"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:paddingBottom="@dimen/screen_percentage_05"
+            android:text="Waiting"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Display2"
+            android:textColor="@color/white"
+            android:textSize="30sp" />
 
         <TextView
-            android:id="@+id/textView2"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="TextView" />
+            android:id="@+id/heartbeatmax"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:text="MAX"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Display2"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
+        <TextView
+            android:id="@+id/heartbeatmin"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:text="MIN"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Display2"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
 
-    </FrameLayout>
-
-
+    </TableLayout>
 </androidx.wear.widget.BoxInsetLayout>
