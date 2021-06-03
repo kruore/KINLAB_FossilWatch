@@ -1,5 +1,8 @@
 package com.example.k_pt_watch;
 
+
+
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -25,6 +28,8 @@ import android.widget.Toast;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.wearable.Wearable;
+
 import java.text.DecimalFormat;
 
 
@@ -36,7 +41,8 @@ import java.text.DecimalFormat;
 //cd C:\Users\epsel\AppData\Local\Android\Sdk\platform-tools
 //  adb forward tcp:4444 localabstract:/adb-hub
 //    adb connect 127.0.0.1:4444
-public class MainActivity extends WearableActivity implements SensorEventListener {
+public class MainActivity extends WearableActivity implements SensorEventListener
+{
 
     private double distance = 0;
     private Location beforeLocation = null;
@@ -46,6 +52,8 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private Button button;
     private TextView GPSLocation;
 
+    private LocationManager lm;`
+
     private TextView HeartBeat;
     private TextView HeartBeatMax;
     private TextView HeartBeatMin;
@@ -54,17 +62,11 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private int maxValue = 0;
     private int minValue = 0;
     private static final String TAG = MainActivity.class.getSimpleName();
-
-    enum ScreenState {heartbeat, exit}
-
-    private ScreenState currentState = ScreenState.heartbeat;
-
     @SuppressLint("MissingPermission")
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
+
         KnowSpeed = findViewById(R.id.speed);
         MaxSpeed = findViewById(R.id.speed2);
         HeartBeat = findViewById(R.id.heartbeat);
@@ -78,7 +80,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         permissionRequest(this);
         readSensor();
         // Enables Always-on
-        setAmbientEnabled();
 
         /**
          2021 . 05. 28  Made By Lee Sang Jun
@@ -88,30 +89,16 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
         if (!hasGps()) {
             Log.w(TAG, "This hardware doesn't have GPS! The Application will finish.");
+        } else {
+            Log.w("TAG", "아니 동작하자나");
         }
-
     }
-
     @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
     }
 
-
-    /**
-     * Watch Controll
-     **/
-
-    @Override
-    public void onUpdateAmbient() {
-        super.onUpdateAmbient();
-    }
-
-
-    private void updateDisplay() {
-        Log.d("업데이트", "디스플레이 업데이트");
-    }
 
     /**
      * GPS
@@ -137,7 +124,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
                 maxSpeed=mySpeed;
                 String msg2 = formatter.format(maxSpeed);
                 MaxSpeed.setText(msg);
-
             }
             String provider = location.getProvider();
             double longitude = location.getLongitude();
@@ -153,14 +139,18 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
         }
-
+        @SuppressLint("MissingPermission")
         public void onProviderEnabled(String provider) {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            lm.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, this);
         }
 
         public void onProviderDisabled(String provider) {
         }
     };
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onResume()
     {
@@ -171,12 +161,12 @@ public class MainActivity extends WearableActivity implements SensorEventListene
             ActivityCompat.requestPermissions( MainActivity.this, new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
                     0 );
         }
-        else {
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            String provider = location.getProvider();
-            double longitude = location.getLongitude();
-            double latitude = location.getLatitude();
-            double altitude = location.getAltitude();
+
+//            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+//            String provider = location.getProvider();
+//            double longitude = location.getLongitude();
+//            double latitude = location.getLatitude();
+//            double altitude = location.getAltitude();
 
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     5000,
@@ -186,7 +176,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
                     5000,
                     5,
                     gpsLocationListener);
-        }
     }
     /**
      * Heart Rate
@@ -237,12 +226,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
                             0 );
                 }
                 else{
-                    Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    String provider = location.getProvider();
-                    double longitude = location.getLongitude();
-                    double latitude = location.getLatitude();
-                    double altitude = location.getAltitude();
-
                     GPSLocation.setText("GPS Start");
 
                     lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,
@@ -271,10 +254,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
 
         if (keyCode == KeyEvent.KEYCODE_STEM_1) {
-            if (currentState == ScreenState.heartbeat) {
-                currentState = ScreenState.exit;
-                //   setContentView(R.layout.exit_layout);
-            }
+
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_STEM_2) {
             return true;
@@ -291,7 +271,18 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     }
 
     public void permissionRequest(Activity activity) {
-        int locationPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+        int permissionCheck1 = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET);
+        if(permissionCheck1 == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.INTERNET},1);
+
+        int permissionCheck2 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION);
+        if(permissionCheck2 == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},1);
+
+        int permissionCheck3 = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if(permissionCheck3 == PackageManager.PERMISSION_DENIED)
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION},1);
+    int locationPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
         int locationPermission2 = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
         //TODO: Negative answer not handled. Positive answer requires restart.
         if (checkSelfPermission(Manifest.permission.BODY_SENSORS)
@@ -323,4 +314,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         return getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
 
     }
-};
+}
+
+
