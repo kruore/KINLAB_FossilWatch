@@ -117,4 +117,91 @@
             >
         </Button>
     </TableLayout>
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <TextView
+            android:id="@+id/residuaryDistance"
+            android:layout_width="wrap_content"
+            android:layout_marginVertical="0dp"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:text="잔여 거리"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Display2"
+            android:textColor="@color/white"
+            android:textSize="15dp">
+        </TextView>
+        <TextView
+            android:id="@+id/residuaryPart"
+            android:layout_width="wrap_content"
+            android:layout_marginVertical="0dp"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:text="구간"
+            android:textAlignment="center"
+            android:textAppearance="@android:style/TextAppearance.Material.Display2"
+            android:textColor="@color/white"
+            android:textSize="15dp">
+        </TextView>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            >
+            <TextView
+                android:id="@+id/Text000"
+                android:layout_width="wrap_content"
+                android:layout_marginVertical="0dp"
+                android:paddingTop="@dimen/screen_percentage_05"
+                android:text="거리 : "
+                android:textAlignment="center"
+                android:layout_marginLeft="20dp"
+                android:textAppearance="@android:style/TextAppearance.Material.Display2"
+                android:textColor="@color/white"
+                android:textSize="15dp">
+            </TextView>
+            <EditText
+                android:id="@+id/distance02"
+                android:layout_width="wrap_content"
+                android:paddingTop="@dimen/screen_percentage_05"
+                android:textAppearance="@android:style/TextAppearance.Material.Display2"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:inputType="number"
+                android:maxLength="3"
+                >
+            </EditText>
+            <TextView
+                android:id="@+id/Text001"
+                android:layout_width="wrap_content"
+                android:layout_marginVertical="0dp"
+                android:paddingTop="@dimen/screen_percentage_05"
+                android:text="속도 : "
+                android:layout_marginLeft="10dp"
+                android:textAlignment="center"
+                android:textAppearance="@android:style/TextAppearance.Material.Display2"
+                android:textColor="@color/white"
+                android:textSize="15dp">
+            </TextView>
+            <EditText
+                android:id="@+id/residuaryspeed"
+                android:layout_width="wrap_content"
+                android:paddingTop="@dimen/screen_percentage_05"
+                android:textAppearance="@android:style/TextAppearance.Material.Display2"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:inputType="number"
+                android:maxLength="3"
+                >
+            </EditText>
+        </TableRow>>
+        <Button
+            android:id="@+id/checkDistance03"
+            android:layout_width="wrap_content"
+            android:paddingTop="@dimen/screen_percentage_05"
+            android:text="완료"
+            android:textAlignment="center"
+            >
+        </Button>
+    </TableLayout>
 </androidx.wear.widget.BoxInsetLayout>

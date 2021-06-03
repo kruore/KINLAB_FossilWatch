@@ -52,7 +52,7 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private Button button;
     private TextView GPSLocation;
 
-    private LocationManager lm;`
+    private LocationManager lm;
 
     private TextView HeartBeat;
     private TextView HeartBeatMax;
