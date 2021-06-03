@@ -60,6 +60,7 @@
                 android:textSize="20sp"
                 android:inputType="number"
                 android:maxLength="3"
+
                 >
             </EditText>
             <TextView

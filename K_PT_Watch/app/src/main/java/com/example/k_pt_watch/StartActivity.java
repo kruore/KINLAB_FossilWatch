@@ -23,25 +23,34 @@ public class StartActivity extends Activity {
 
     int targetDistance = 0;
     int residuaryDistance = 0;
-    int residuaryCount= 0;
+    int residuaryCount = 0;
+    int seperateCount = 0;
 
 
-    /**Scene 00**/
+    /**
+     * Scene 00
+     **/
     private TextView distanceChecker;
     private EditText distanceEdit;
     private Button CheckDistance;
 
-    /**Scene 01**/
+    /**
+     * Scene 01
+     **/
     private TextView distanceChecker2;
     private TextView distancePiecer;
     private TextView mDistancePiecerStartButton;
 
-    /**Scene 03**/
-    private TextView mDistancePiecerEdit;
+    /**
+     * Scene 03
+     **/
+    private EditText mDistancePiecerEdit;
     private Button mDistancePiecerButton;
     private TextView mDistancePiecerText;
 
-    /**Scene 04**/
+    /**
+     * Scene 04
+     **/
     private TextView mResiduaryDistanceText;
     private Button mResiduaryDistanceButton;
     private TextView mResiduaryDistanceText02;
@@ -51,7 +60,7 @@ public class StartActivity extends Activity {
     private EditText mResiduarySpeed;
 
     private int[] distance;
-    private int[] separatePart;
+    private int[] separatePartSpeed;
     private int separate_distance_counter;
 
     @Override
@@ -63,7 +72,7 @@ public class StartActivity extends Activity {
         /**Scene 00**/
         distanceEdit = findViewById(R.id.distance);
         CheckDistance = (Button) findViewById(R.id.checkDistance);
-        distanceChecker =findViewById(R.id.distanceChecker);
+        distanceChecker = findViewById(R.id.distanceChecker);
 
         /**Scene 01**/
         distanceChecker2 = findViewById(R.id.distanceChecker2);
@@ -86,6 +95,7 @@ public class StartActivity extends Activity {
 
         OnClickViewChanger(0);
 
+        //구간 속도
         mResiduarySpeed.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -99,11 +109,11 @@ public class StartActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                distance[separate_distance_counter]=Integer.parseInt(mResiduarySpeed.getText().toString());
-                mResiduarySpeed.clearComposingText();
+
             }
         });
 
+        //구간 거리
         mResiduaryDistance.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -117,11 +127,11 @@ public class StartActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                distance[separate_distance_counter]=Integer.parseInt(mResiduaryDistance.getText().toString());
-                mResiduaryDistance.clearComposingText();
+
             }
         });
 
+        //구간당
         mDistancePiecerEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -130,19 +140,25 @@ public class StartActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                residuaryCount = Integer.parseInt(mDistancePiecerEdit.getText().toString());
+
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                try {
+                    if (s.toString() != "") {
+                        residuaryCount = Integer.parseInt(mDistancePiecerEdit.getText().toString());
+                    }
+                } catch (NumberFormatException e) {
+                    Log.d("널에러", "널ㄴ런러널");
+                }
             }
         });
 
         CheckDistance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "거리 = "+distanceEdit.getText(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "거리 = " + distanceEdit.getText(), Toast.LENGTH_SHORT).show();
                 OnClickViewChanger(1);
                 /**Activity data transfer**/
 //                Intent intent = new Intent(getApplicationContext(),DistanceChecker.class);
@@ -157,63 +173,61 @@ public class StartActivity extends Activity {
 //                setContentView(R.layout.activitay_distance_check);
             }
         });
-        mDistancePiecerStartButton.setOnClickListener(new View.OnClickListener()
-        {
+        mDistancePiecerStartButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 OnClickViewChanger(2);
             }
         });
-        mDistancePiecerButton.setOnClickListener(new View.OnClickListener()
-        {
+        mDistancePiecerButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 OnClickViewChanger(3);
             }
         });
-        mResiduaryDistanceButton.setOnClickListener(new View.OnClickListener()
-        {
+        mResiduaryDistanceButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 OnClickViewChanger(4);
             }
         });
     }
-    private void InsertData_DataInserter()
-    {
-        int j = residuaryCount;
+
+    private void InsertData_DataInserter() {
         distance = new int[residuaryCount];
-        separatePart = new int[residuaryCount];
+        separatePartSpeed = new int[residuaryCount];
+        seperateCount = distance.length;
     }
-    private void setResiduaryActiveate(int i)
-    {
-        if(i<distance.length)
-        {
-            mResiduaryDistanceText.setText("구간 "+(i+1));
-            Log.d("로그","구간"+(i+1));
+
+    private void setResiduaryActiveate(int i) {
+        if (i < distance.length) {
+            mResiduaryDistanceText.setText("구간 " + (i + 1));
+            Log.d("로그", "구간" + (i + 1));
             separate_distance_counter++;
-        }
-        else
-        {
-            Log.d("로그","separate Part exception");
+        } else {
+            Log.d("로그", "separate Part exception");
+            if(residuaryDistance!=0)
+            {
+                distance[separate_distance_counter-1]=residuaryDistance;
+                Log.d("잔여거리~","마지막 거리는 :" +distance[separate_distance_counter-1]+"배열"+separate_distance_counter);
+                residuaryDistance=0;
+            }
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             int[] distanceArray;
             distanceArray = distance;
             intent.putExtra("distance", distanceArray);
-            startActivity(intent);
-            try{
+            try {
                 startActivity(intent);
                 finish();
-
-            }
-            catch (ActivityNotFoundException e) {
-                Log.d("INTENT","Doesn't Moved");
+            } catch (ActivityNotFoundException e) {
+                Log.d("INTENT", "Doesn't Moved");
             }
             return;
         }
+    }
+
+    public void initallizeStart() {
+
     }
 
     public void permissionRequest(Activity activity) {
@@ -241,11 +255,9 @@ public class StartActivity extends Activity {
         Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show();
     }
 
-    private void OnClickViewChanger(int index)
-    {
-        switch (index)
-        {
-            case 0 :
+    public void OnClickViewChanger(int index) {
+        switch (index) {
+            case 0:
                 distanceEdit.setVisibility(View.VISIBLE);
                 distanceChecker.setVisibility(View.VISIBLE);
                 CheckDistance.setVisibility(View.VISIBLE);
@@ -268,16 +280,18 @@ public class StartActivity extends Activity {
                 break;
 
 
-            case 1 :
+            case 1:
                 distanceEdit.setVisibility(View.INVISIBLE);
                 distanceChecker.setVisibility(View.INVISIBLE);
                 CheckDistance.setVisibility(View.INVISIBLE);
 
                 distanceChecker2.setVisibility(View.VISIBLE);
 
-                distanceChecker2.setText("목표는 "+distanceEdit.getText()+" / KM");
-                targetDistance =  Integer.parseInt(distanceEdit.getText().toString());
+                distanceChecker2.setText("목표는 " + distanceEdit.getText() + " / KM");
+                targetDistance = Integer.parseInt(distanceEdit.getText().toString());
                 residuaryDistance = targetDistance;
+                mResiduaryDistanceText02.setText("잔여거리 : " + Integer.toString(residuaryDistance));
+
                 distancePiecer.setVisibility(View.VISIBLE);
                 mDistancePiecerStartButton.setVisibility(View.VISIBLE);
 
@@ -294,7 +308,7 @@ public class StartActivity extends Activity {
                 mResiduarySpeed.setVisibility(View.INVISIBLE);
 
                 break;
-            case 2 :
+            case 2:
                 distanceEdit.setVisibility(View.INVISIBLE);
                 distanceChecker.setVisibility(View.INVISIBLE);
                 CheckDistance.setVisibility(View.INVISIBLE);
@@ -302,7 +316,6 @@ public class StartActivity extends Activity {
                 distanceChecker2.setVisibility(View.INVISIBLE);
                 distancePiecer.setVisibility(View.INVISIBLE);
                 mDistancePiecerStartButton.setVisibility(View.INVISIBLE);
-
                 mDistancePiecerButton.setVisibility(View.VISIBLE);
                 mDistancePiecerEdit.setVisibility(View.VISIBLE);
                 mDistancePiecerText.setVisibility(View.VISIBLE);
@@ -313,11 +326,8 @@ public class StartActivity extends Activity {
                 mResiduaryDistanceText04.setVisibility(View.INVISIBLE);
                 mResiduaryDistance.setVisibility(View.INVISIBLE);
                 mResiduarySpeed.setVisibility(View.INVISIBLE);
-
                 break;
-            case 3 :
-
-
+            case 3:
                 mDistancePiecerButton.setVisibility(View.INVISIBLE);
                 mDistancePiecerEdit.setVisibility(View.INVISIBLE);
                 mDistancePiecerText.setVisibility(View.INVISIBLE);
@@ -333,10 +343,41 @@ public class StartActivity extends Activity {
                 setResiduaryActiveate(separate_distance_counter);
                 break;
             case 4:
+                if (separate_distance_counter < distance.length) {
+                    try {
+                        distance[separate_distance_counter] = Integer.parseInt(mResiduaryDistance.getText().toString());
+                        separatePartSpeed[separate_distance_counter] = Integer.parseInt(mResiduarySpeed.getText().toString());
+                        if (distance[separate_distance_counter] > residuaryDistance) {
+                            Toast.makeText(this, "구간 거리가 목표보다 길어요!", Toast.LENGTH_SHORT).show();
+                            mResiduarySpeed.setText(null);
+                            mResiduaryDistance.setText(null);
+                            separate_distance_counter--;
+                        } else {
+                            //     residuaryCount = Integer.parseInt(mDistancePiecerEdit.getText().toString());
+                            residuaryDistance -= distance[separate_distance_counter];
+                            mResiduaryDistanceText02.setText("잔여거리 : " + Integer.toString(residuaryDistance));
+                            Log.d("잔여거리", "거리는 :" + residuaryDistance);
+                            if (residuaryDistance == 0) {
+                                for (int z = separate_distance_counter; z < distance.length; z++) {
+                                    distance[z] = 0;
+                                    separatePartSpeed[z] = 0;
+                                    setResiduaryActiveate(separate_distance_counter);
+                                    Log.d("나머지 매꾸기", "값은 " + distance[z]);
+                                }
+                            }
+                            mResiduarySpeed.setText(null);
+                            mResiduaryDistance.setText(null);
+                        }
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "값을 넣어주세요", Toast.LENGTH_SHORT).show();
+                        mResiduarySpeed.setText(null);
+                        mResiduaryDistance.setText(null);
+                        separate_distance_counter--;
+                    }
+                }
                 setResiduaryActiveate(separate_distance_counter);
                 break;
             case 5:
-
                 break;
         }
     }

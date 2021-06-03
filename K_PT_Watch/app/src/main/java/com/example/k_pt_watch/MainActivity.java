@@ -7,6 +7,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -49,7 +50,8 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private float mySpeed = 0;
     private float maxSpeed =0;
 
-    private Button button;
+    private StartActivity startActivity;
+
     private TextView GPSLocation;
 
     private LocationManager lm;
@@ -99,7 +101,10 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         super.onStart();
     }
 
-
+    public void onStop(){
+        super.onStop();
+        getIntent().setData(null);
+    }
     /**
      * GPS
      **/
@@ -136,7 +141,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 //                    "경도 : " + latitude + "\n" +
 //                    "고도  : " + altitude);
         }
-
         public void onStatusChanged(String provider, int status, Bundle extras) {
         }
         @SuppressLint("MissingPermission")
@@ -149,7 +153,10 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         public void onProviderDisabled(String provider) {
         }
     };
-
+    protected void onDestroy()
+    {
+        super.onDestroy();
+    }
     @SuppressLint("MissingPermission")
     @Override
     protected void onResume()
@@ -180,13 +187,11 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     /**
      * Heart Rate
      **/
-
     private void readSensor() {
         SensorManager mSensorManager = ((SensorManager) getSystemService(SENSOR_SERVICE));
         Sensor mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
         mSensorManager.registerListener(this, mHeartRateSensor, SensorManager.SENSOR_DELAY_UI);
     }
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_HEART_RATE) {
