@@ -257,7 +257,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     //Key를 오래 누를 경우에 동작하는 기능
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-
         if (keyCode == KeyEvent.KEYCODE_STEM_1) {
 
             return true;
@@ -267,12 +266,10 @@ public class MainActivity extends WearableActivity implements SensorEventListene
 
         }
         return super.onKeyDown(keyCode, event);
-
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     public void permissionRequest(Activity activity) {
@@ -292,7 +289,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
         //TODO: Negative answer not handled. Positive answer requires restart.
         if (checkSelfPermission(Manifest.permission.BODY_SENSORS)
                 != PackageManager.PERMISSION_GRANTED) {
-
             requestPermissions(
                     new String[]{Manifest.permission.BODY_SENSORS}, 1);
         }

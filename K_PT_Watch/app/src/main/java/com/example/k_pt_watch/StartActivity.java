@@ -92,9 +92,7 @@ public class StartActivity extends Activity {
         mResiduaryDistanceText04 = findViewById(R.id.Text001);
         mResiduaryDistance = findViewById(R.id.distance02);
         mResiduarySpeed = findViewById(R.id.residuaryspeed);
-
         OnClickViewChanger(0);
-
         //구간 속도
         mResiduarySpeed.addTextChangedListener(new TextWatcher() {
             @Override
@@ -104,15 +102,11 @@ public class StartActivity extends Activity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
-
             @Override
             public void afterTextChanged(Editable s) {
-
             }
         });
-
         //구간 거리
         mResiduaryDistance.addTextChangedListener(new TextWatcher() {
             @Override
@@ -154,7 +148,6 @@ public class StartActivity extends Activity {
                 }
             }
         });
-
         CheckDistance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -192,13 +185,11 @@ public class StartActivity extends Activity {
             }
         });
     }
-
     private void InsertData_DataInserter() {
         distance = new int[residuaryCount];
         separatePartSpeed = new int[residuaryCount];
         seperateCount = distance.length;
     }
-
     private void setResiduaryActiveate(int i) {
         if (i < distance.length) {
             mResiduaryDistanceText.setText("구간 " + (i + 1));
@@ -225,11 +216,8 @@ public class StartActivity extends Activity {
             return;
         }
     }
-
     public void initallizeStart() {
-
     }
-
     public void permissionRequest(Activity activity) {
         int locationPermission = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
         int locationPermission2 = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -278,8 +266,6 @@ public class StartActivity extends Activity {
                 mResiduaryDistance.setVisibility(View.INVISIBLE);
                 mResiduarySpeed.setVisibility(View.INVISIBLE);
                 break;
-
-
             case 1:
                 distanceEdit.setVisibility(View.INVISIBLE);
                 distanceChecker.setVisibility(View.INVISIBLE);
@@ -306,7 +292,6 @@ public class StartActivity extends Activity {
                 mResiduaryDistanceText04.setVisibility(View.INVISIBLE);
                 mResiduaryDistance.setVisibility(View.INVISIBLE);
                 mResiduarySpeed.setVisibility(View.INVISIBLE);
-
                 break;
             case 2:
                 distanceEdit.setVisibility(View.INVISIBLE);
