@@ -313,7 +313,6 @@ public class MainActivity extends WearableActivity implements SensorEventListene
     private boolean hasGps() {
 
         return getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
-
     }
 }
 
